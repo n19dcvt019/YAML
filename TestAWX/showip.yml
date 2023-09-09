@@ -1,0 +1,10 @@
+---
+name: demo
+host: Router
+
+tasks:
+  name: run show version on remote devices
+  ios_command:
+    commands: show ip int bri
+  register: demo
+  debug: var=demo.stdout_lines

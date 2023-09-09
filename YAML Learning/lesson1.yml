@@ -1,0 +1,25 @@
+application:
+- Cards
+- Loans 
+- Accounts
+departments:
+  - Marketing
+  - Insurance
+  - Security
+
+locations: [Hyderabad, NewYork, Berlin, "Paris"]
+
+products:
+  - Accounts:
+      - Savings Account 
+      - Current Account
+  - Loans:
+      - Home Loan
+      - Car Loan
+      - Personal Loan
+  - Accounts:
+      - Credit Card
+      - Debit Card
+
+
+

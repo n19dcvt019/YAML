@@ -1,0 +1,25 @@
+"apple" : "I am a red fruit"
+1: "This is Kunal's roll number"
+
+lists:
+  - apple
+  - mango
+  - banana
+
+cities:
+  - new delhi
+  - Laos
+  - Vietnam
+
+#commment here
+microservices:
+  - app: user-authentication
+    port: 9000
+    version: 1.7
+    deployed: yes
+  - app: shopping-cart
+    port: 9002
+    version: 1.9
+
+
+  

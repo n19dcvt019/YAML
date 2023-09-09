@@ -1,0 +1,17 @@
+MyInfo:
+  first_name: Kien
+  Age: 22
+  Hometown: AG
+  Hobbies:
+    - Cooking
+    - Reading
+    - Travelling
+  floatexample: 
+    height: 178
+  isYamlFun: true
+  lightOn: false
+
+
+  string: Hello World
+  stringtwo: "Hello World's"
+  existingCustomer: null

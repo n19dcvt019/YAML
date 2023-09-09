@@ -1,0 +1,23 @@
+---
+- name: PLAY 1 - DEPLOYING SNMP CONF ON IOS 
+  hosts: routers
+  connection: network_cli
+  gather_facts: no
+  
+  tasks:
+    - name: ENSURE SNMP COMMANDS EXIST ON IOS DIVEICES TASK 1 in PLAY 1
+      ios_config:
+        commands:
+          - snmp-server community cisco-course RO
+          - snmp-server location CA-HQ
+          - snmp-server contact JOHN-SMITH
+    
+    - name: ENSURE STATIC ROUTE EXISTS ON IOS DEVICES TASK 2 in PLAY 1
+      ios_config:
+        lines:
+          - ip route: 192.168.1.0 255.255.255.0 192.168.2.1
+    
+
+    - name: ENSURE CONFIG EXISTS ON IOS DEVICES TASK 3 in PLAY 1
+      ios_config:
+        src: cisco_ios.config

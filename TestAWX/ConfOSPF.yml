@@ -1,0 +1,27 @@
+--- 
+- name:  set OSPF 
+  ios_config: 
+    parents:   # vào mode bên dưới
+      - router ospf 1
+    lines:     # các lệnh sẽ thực hiện
+      - router-id 1.1.1.1
+
+- name: set ip OSPF ethernet0/0
+  ios_config:
+    parents:   
+      - int eth0
+    lines: 
+      - no shut
+      - ip ospf 1 area 0
+
+- name: set ip OSPF ethernet0/1
+  ios_config:
+    parents:   
+      - int eth1
+    lines:
+      - no shut
+      - ip ospf 1 area 0
+
+- debug: var=show_ip.stdout_lines   # debug: in ra màn hình, đắt biến var
+                                    # ( lấy thông tin của các dòng từ show_ip gắn vào)
+                                    # in biến var

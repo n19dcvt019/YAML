@@ -1,0 +1,28 @@
+organization: eazybank
+about:
+  Eazybank
+  is an
+  Bank based
+  application
+history: >
+  Eazybank
+  established
+  in 1989
+products: "[Accounts] & {Cards} - <Loans>"
+hasMobileApp: "Yes"
+
+
+student:
+  studetnId: N19DCVT019
+  firstName: Kien
+  lastName: Nguyen
+  email: kiennv221201@gmail.com
+  age: 22
+  height: 178cm
+  weight: 75kg
+  isMale: true
+  dob: 22-12-2001
+  address: 14 102 street,
+           Tang Nhon Phu A ward,
+           Thu Duc city,
+           Ho Chi Minh city.

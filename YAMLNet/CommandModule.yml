@@ -1,0 +1,26 @@
+---
+- name: RUN SHOW COMMANDS IOS DEVICES
+  hosts: ios 
+  connection: network_cli
+  gather_facts: no
+
+  tasks:
+    - name: EXECUTE A SINGLE COMMAND 
+      ios_command:
+      commands: "show version"
+
+    - name: EXECUTE A LIST OF COMMANDS 
+      ios_command:
+      commands:
+        - "show version"
+        - "show ip int bri"
+
+    - name: SEND SHOW VERSION TO DEVICES 
+      ios_command:
+        commands:
+          - "show version" 
+      register: output
+
+    - name: VIEW OUTPUT 
+      debug: 
+        var: output['stdout'][0]

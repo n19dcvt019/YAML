@@ -1,0 +1,117 @@
+--- 
+- name: Set IP DCHP
+  hosts: all
+
+  tasks: 
+    - name: Set ethernet0/0 IPv4 Address
+      ios_l3_interface:
+        name: ethernet0/0
+        ipv4: 192.168.1.2/24   
+    - name: no shut
+      ios_l3_interface:
+        name: ethernet0/0
+        state: present
+
+    - name: Set ethernet0/1 IPv4 Address  
+      ios_l3_interface:
+        name: ethernet0/1
+    - name: no shut
+      ios_l3_interface:
+        name: ethernet0/1
+        state: present
+
+    - name: Config Sub-interface e0/1.10
+      ios_l3-interface:
+        name: ethernet0/1.10
+        description: encapsulation dot1q vlan 10
+        ipv4: 192.168.10.1./24
+        state: present
+
+    - name: Config Sub-interface e0/1.20
+      ios_l3-interface:
+        name: ethernet0/1.20
+        description: encapsulation dot1q vlan 20
+        ipv4: 192.168.20.1/24
+        state: present
+    - name: Config Sub-interface e0/1.30
+      ios_l3-interface:
+        name: ethernet0/1.30
+        description: encapsulation dot1q vlan 30
+        ipv4: 192.168.30.1/24
+        state: present
+
+
+    - name: show ip
+      ios_command:
+        commands:
+          - sh ip int bri
+      
+      register: show_ip   # gắn kết quả vào biến show_ip
+
+    - name: Config DHCP pool LAN_10
+      ios_dhcp_pool:
+        name: ip dhcp pool LAN_10
+        network: 192.168.10.0 /24
+        default_router: 192.168.10.1
+        dns-server: 8.8.8.8
+        state: present
+
+    - name: Config DHCP pool LAN_20
+      ios_dhcp_pool:
+        name: ip dhcp pool LAN_20
+        network: 192.168.20.0 /24
+        default_router: 192.168.20.1
+        dns-server: 8.8.8.8
+        state: present
+    
+    - name: Config DHCP pool LAN_30
+      ios_dhcp_pool:
+        name: ip dhcp pool LAN_30
+        network: 192.168.30.0 /24
+        default_router: 192.168.30.1
+        dns-server: 8.8.8.8
+        state: present
+
+    - debug: var=show_ip.stdout_lines
+
+
+# Đang có suy nghĩ về 2 cách
+    - name: Config DHCP pool LAN_10
+      ios_config:
+        parents:
+          - ip dhcp pool LAN_10
+        lines:
+          - network 192.168.10.0 /24
+          - default_router 192.168.10.1
+          - dns-server 8.8.8.8
+    
+    - name: Config DHCP pool LAN_20
+      ios_config:
+        parents: 
+          - ip dhcp pool LAN_20
+        lines: 
+          - network 192.168.20.0 /24
+          - default_router 192.168.20.1
+          - dns-server 8.8.8.8
+
+    - name: Config DHCP pool LAN_30
+      ios_config:
+        parents: 
+          - ip dhcp pool LAN_30
+        lines:
+          - network 192.168.30.0 /24
+          - default_router 192.168.30.1
+          - dns-server 8.8.8.8
+
+
+
+
+    
+
+
+          
+
+
+        
+
+
