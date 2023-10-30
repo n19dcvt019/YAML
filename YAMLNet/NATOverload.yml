@@ -1,0 +1,28 @@
+---
+- name: Config router 
+  hosts: cisco
+  connection: network_cli
+  gather_facts: false 
+
+  tasks:
+    - name: Config e0/1 
+      ios_config:
+        lines: 
+          - access_list 1 permit 192.168.1.0 0.0.0.255
+          - ip nat inside source list 1 interface ethernet0/0 overload  
+
+    - name: int e0/0 
+      ios_config:
+        parents:
+          - int e0/0 
+        lines:
+          - ip nat outside 
+      
+    - name: int e0/1 
+      ios_config: 
+        parents:
+          - int e0/1 
+        lines: 
+          - ip nat inside 
+
+          

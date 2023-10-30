@@ -1,8 +1,8 @@
 ---
 - name: RUN SHOW COMMANDS IOS DEVICES
-  hosts: ios 
+  hosts: cisco
   connection: network_cli
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: EXECUTE A SINGLE COMMAND 
@@ -22,5 +22,4 @@
       register: output
 
     - name: VIEW OUTPUT 
-      debug: 
-        var: output['stdout'][0]
+      debug: var=output.stdout_lines

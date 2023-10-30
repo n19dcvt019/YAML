@@ -1,12 +1,23 @@
 ---
-- name: demo
-  hosts: Switch
-
-  tasks:  
-    name: Create vlan
-    ios_vlan:
-      vlan_id: 100
-      name: test-vlan
-      state: present
-
+- name: Config switch 
+  hosts: Switch 
+  connection: network_cli 
+  gather_facts: false 
     
+  tasks: 
+    - name: create vlan
+      ios_vlan: 
+        aggregate: 
+          - { vlan_id: 10 }
+          - { vlan_id: 20 }
+          - { vlan_id: 30 }
+    
+    - name: gan cong vao vlan 
+      ios_l2_interface: 
+        name: {{ item.int }}
+        mode: access 
+        access_vlan: "{{ item.vlan }}"
+      with_items:
+        - { vlan: "10", int: "ethernete0/2.10"}
+        - { vlan: "20", int: "ethernete0/2.20"}
+        - { vlan: "30", int: "ethernete0/2.30"}

@@ -1,0 +1,159 @@
+---
+- name: Config R_DR1
+  hosts: R_DR1
+  connection: network_cli
+  gather_facts: false 
+
+  tasks: 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents:
+          - interface e0/1 
+        lines:
+          - no shut
+          - ip address 192.168.2.9 255.255.255.248
+          - ip nat inside 
+          - ip ospf 1 area 2
+    
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 192.168.2.1 255.255.255.248
+          - ip nat inside
+          - ip ospf 1 area 2
+    
+    - name: Set IP on interface e0/3 
+      ios_config: 
+        parents:
+          - interface e0/3
+        lines:
+          - no shut
+          - ip address 10.10.2.2 255.255.255.0
+          - ip nat outside
+
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        parents:
+          - router ospf 1 
+        lines:
+          - redistribute static subnets
+          - default-information originate
+
+    - name: Config tunnel 1
+      ios_config:
+        parents:
+          - interface Tunnel1
+        lines:
+          - ip address 172.16.1.2 255.255.255.252
+          - tunnel mode gre ip
+          - tunnel source 10.10.2.2
+          - tunnel destination 10.10.3.2
+    
+    - name: Config tunnel 3
+      ios_config: 
+        parents:
+          - interface Tunnel3
+        lines:
+          - ip address 172.16.3.2 255.255.255.252
+          - tunnel mode gre ip
+          - tunnel source 10.10.2.2
+          - tunnel destination 10.10.4.2
+
+    - name: Static route 
+      ios_config:
+        lines: 
+          - access-list 2 permit any
+          - ip nat inside source list 2 interface Ethernet0/3 overload
+          - ip route 0.0.0.0 0.0.0.0 10.10.2.1
+          - ip route 192.168.3.0 255.255.255.0 172.16.1.1 120
+          - ip route 192.168.4.0 255.255.255.0 172.16.3.1 120
+          
+
+- name: Config R_DR2
+  hosts: R_DR2
+  connection: network_cli
+  gather_facts: false 
+
+  tasks: 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents:
+          - interface e0/1 
+        lines:
+          - no shut
+          - ip address 192.168.2.17 255.255.255.248
+          - ip ospf 1 area 2
+    
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 172.16.123.2 255.255.255.0
+          - ip ospf 1 area 0
+    
+    - name: Set IP on interface e0/3 
+      ios_config: 
+        parents:
+          - interface e0/3
+        lines:
+          - no shut
+          - ip address 192.168.2.2 255.255.255.248
+          - ip ospf 1 area 2
+
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        lines:
+          - router ospf 1 
+        
+
+- name: Config on SW_DR
+  hosts: SW_DR
+  connection: network_cli
+  gather_facts: false 
+
+  tasks: 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents: 
+          - interface e0/1 
+        lines:
+          - no switchport
+          - ip address  192.168.2.254 255.255.255.248 
+
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents: 
+          - interface e0/2
+        lines:
+          - no switchport
+          - ip address  192.168.2.10 255.255.255.248
+          - ip ospf 1 area 2 
+
+    - name: Set IP on interface e0/3
+      ios_config: 
+        parents: 
+          - interface e0/3
+        lines:
+          - no switchport
+          - ip address  192.168.2.18 255.255.255.248
+          - ip ospf 1 area 2 
+
+    - name: Set IP on interface e1/0
+      ios_config: 
+        parents: 
+          - interface e1/0
+        lines:
+          - no switchport
+          - ip address  192.168.12.2 255.255.255.252
+
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        parents:
+          - router ospf 1 
+        lines:
+          - redistribute connected subnets

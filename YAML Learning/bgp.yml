@@ -1,0 +1,16 @@
+---
+router:
+  bgp: 
+    - id: 65001
+      bgp:
+        router_id: 192.168.1.1
+        fast_external_fallover: null
+        update_delay: 15
+      neighbor: 
+        - id: 192.168.1.2 
+          remote_as: 65002
+        - id: 192.168.1.3 
+          remote_as: 65003 
+      redistribute:
+        connected: {}
+       

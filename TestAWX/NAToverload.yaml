@@ -1,0 +1,188 @@
+--- 
+- name: Config on Router R1
+  hosts: R1NAT 
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: Config on interface e0/1
+      ios_config:
+        parents:
+          - interface e0/1
+        lines: 
+          - no shut
+          - ip address 192.168.1.1 255.255.255.0
+        
+    - name: Config subint 
+      ios_config: 
+        parents:
+          - interface {{ item.subint}}
+        lines:
+          - encapsulation dot1q {{ item.vlan }}
+          - ip address 192.168.{{item.vlan}}.1 255.255.255.0 
+      with_items:
+        - {subint: ethernet0/1.100, vlan: 100}
+        - {subint: ethernet0/1.101, vlan: 101}
+        - {subint: ethernet0/1.102, vlan: 102}
+
+    - name: Config DHCP
+      ios_config:
+        parents:
+          - ip dhcp pool {{ item.name }}
+        lines:
+          - network 192.168.{{item.vlan}}.0 255.255.255.0
+          - default-router 192.168.{{item.vlan}}.1 
+          - dns-server 8.8.8.8 
+      with_items: 
+        - {name: LAN_100, vlan: 100}
+        - {name: LAN_101, vlan: 101}
+        - {name: LAN_102, vlan: 102}
+
+    - name: Config int e0/2
+      ios_config:
+        parents:
+          - int e0/2
+        lines:
+          - ip add 192.168.12.1 255.255.255.0
+          - no shut
+
+    - name: Config OSPF on R1
+      ios_config:
+        parents:
+          - router ospf 1
+        lines:
+          - network 192.168.100.0 0.0.0.255 area 0
+          - network 192.168.12.0 0.0.0.255 area 0
+          - network 192.168.101.0 0.0.0.255 area 0
+          - network 192.168.102.0 0.0.0.255 area 0
+
+
+- name: Config on Router R2
+  hosts: R2NAT
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: Config int e0/0
+      ios_config:
+        parents:
+          - int e0/0
+        lines:
+          - ip add 192.168.12.2 255.255.255.0
+          - no shut
+          - ip nat inside
+
+
+    - name: Config route on R2
+      ios_config:
+        lines: 
+          - ip route 0.0.0.0 0.0.0.0 200.0.0.2
+
+    - name: Config int e0/1
+      ios_config:
+        parents:
+          - int e0/1
+        lines:
+          - ip add 200.0.0.1 255.255.255.252
+          - no shut
+          - ip nat outside
+
+    - name: CONfig OSPF on R2
+      ios_config:
+        parents:
+          - router ospf 1
+        lines:
+          - network 192.168.12.0 0.0.0.255 area 0
+          - default-information originate
+
+    - name: Config NAT
+      ios_config:
+        lines:
+          - access-list 1 permit 192.168.100.0 0.0.0.255 
+          - ip nat inside source list 1 interface e0/1 overload
+        
+
+    - name: show R2
+      ios_command:
+        commands:
+          - show run 
+          - sh ip nat translations
+      register: output
+
+    - debug: var=output.stdout_lines
+
+
+
+- name: Config on Switch
+  hosts: SWNAT
+  connection: network_cli
+  gather_facts: false 
+
+  tasks: 
+
+    - name: Create vlan
+      ios_config:
+        lines:
+          - vlan 100
+          - vlan 101 
+          - vlan 102
+
+    - name: Gan vlan vao port
+      ios_config: 
+        parents: 
+          - interface {{item.int}}
+        lines:
+          - sw mode access
+          - sw access vlan {{item.num_vlan }}
+      with_items: 
+        - {int: ethernet0/1, num_vlan: 101}
+        - {int: ethernet0/2, num_vlan: 100}
+        - {int: ethernet0/3, num_vlan: 102}
+        
+    - name: Config e0/0 mode trunk
+      ios_config: 
+        parents:
+          - int e0/0 
+        lines:
+          - sw trunk encapsulation dot1q 
+          - sw mode trunk 
+
+    - name: Show on Switch 
+      ios_command: 
+        commands: 
+          - show vlan bri 
+          - show int trunk 
+
+      register: result
+
+    - debug: var=result.stdout_lines
+
+- name: Config on ROuter ISP
+  hosts: ISPNAT
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: Config on int e0/0
+      ios_config:
+        parents:
+          - int e0/0
+        lines:
+          - ip add 200.0.0.2 255.255.255.252
+          - no shut 
+
+    - name: COnfig loopback 0
+      ios_config:
+        parents:
+          - int lo0
+        lines:
+          - ip add 1.1.1.1 255.255.255.255
+
+    - name: Config route
+      ios_config:
+        lines:
+          - ip route 199.99.9.0 255.255.255.248 200.0.0.1
+
+
+
+  

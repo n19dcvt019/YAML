@@ -1,5 +1,4 @@
-"apple" : "I am a red fruit"
-1: "This is Kunal's roll number"
+
 
 lists:
   - apple
@@ -11,15 +10,15 @@ cities:
   - Laos
   - Vietnam
 
-#commment here
-microservices:
-  - app: user-authentication
-    port: 9000
-    version: 1.7
-    deployed: yes
-  - app: shopping-cart
-    port: 9002
-    version: 1.9
+
+#examples for YAMl 
+Product: KEYBOARD
+Price: 500
+Specification:
+  - brand: A4TECH
+  - color: green
+  
+
 
 
   

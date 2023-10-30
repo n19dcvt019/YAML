@@ -1,0 +1,3 @@
+interface range [interface type] [port-number] [port-number]
+  switchport access vlan [date vlan ]
+  switchport voice vlan [ voice vlan]

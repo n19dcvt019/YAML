@@ -1,0 +1,164 @@
+---
+- name: Config on Router ISP
+  hosts: ISP
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+
+    - name: Config int e0/1 
+      ios_config:
+        parents:
+          - interface e0/1 
+        lines: 
+          - no shut
+          - ip address 192.168.1.1 255.255.255.0
+          - ip ospf 1 area 0
+          - ip nat inside 
+
+    - namme: Config int e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 192.168.2.1 255.255.255.0
+          - ip ospf 1 area 0
+          - ip nat inside
+
+    - name: Config OSPF 
+      ios_config: 
+        parents: 
+          - router ospf 1
+        lines:
+          - network 192.168.1.0 0.0.0.255 area 0
+          - network 192.168.2.0 0.0.0.255 area 0
+          - default-information originate 
+
+    - name: Config NAT
+      ios_config:
+        lines:
+          - access_list 1 permit any
+          - ip nat inside source list 1 interface e0/0 overload 
+
+    - name: Config int e0/0 
+      ios_config:
+        parents:
+          - interface e0/0 
+        lines:
+          - ip nat outside 
+
+  
+
+- name: Config on Router R2
+  hosts: R2 
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: Config OSPF 
+      ios_config:
+        lines:
+          - router ospf 1 
+
+    - name: Config int e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut 
+          - ip address 192.168.1.2 255.255.255.0
+          - ip ospf 1 area 0
+
+    - name: Config int e0/1 
+      ios_config:
+        parents:
+          - interface e0/1
+        lines:
+          - no shut
+          - ip address 192.168.23.2 255.255.255.0 
+          - ip ospf 1 area 0
+
+
+
+- name: Config on Router R3
+  hosts: R3
+  connection: network_cli
+  gather_facts: false
+
+  tasks:
+    - name: Config OSPF 
+      ios_config:
+        lines:
+          - router ospf 1 
+
+    - name: Config int e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut 
+          - ip address 192.168.2.2 255.255.255.0
+          - ip ospf 1 area 0
+
+    - name: Config int e0/1 
+      ios_config:
+        parents:
+          - interface e0/1
+        lines:
+          - no shut
+          - ip address 192.168.23.3 255.255.255.0 
+          - ip ospf 1 area 0
+
+
+- name: Config HSRP on Router R2 
+  hosts: R2
+  connection: network_cli
+  gather_facts: false 
+
+  tasks: 
+    
+    - name: Config HSRP 
+      ios_config:
+        parents: 
+          - interface e0/1 
+        lines: 
+          - standby 1 ip 192.168.23.254
+          - standby 1 preempt 
+          - standby 1 priority 150 
+
+
+- name: Config HSRP on Router R3
+  hosts: R3 
+  connection: network_cli
+  gather_facts: false 
+
+  tasks:
+    
+    - name: Config HSRP 
+      ios_config:
+        parents:
+          - interface e0/1 
+        lines:
+          - standby 1 ip 192.168.23.254 
+          - standby 1 preempt
+
+
+
+- name: Config on Switch
+  hosts: SW 
+  connection: network_cli
+  gather_facts: false 
+
+  tasks:
+    - name: Config trunking 
+      ios_config:
+        parents:
+          - int {{ item.int }}
+        lines:
+          - switchport trunk encapsulation dot1q 
+          - switchport mode trunk 
+      with_items:
+        - { int: ethernet0/0 }
+        - { int: ethernet0/1 }
+

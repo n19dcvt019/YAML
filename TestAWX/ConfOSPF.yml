@@ -9,7 +9,7 @@
 - name: set ip OSPF ethernet0/0
   ios_config:
     parents:   
-      - int eth0
+      - int ethernet0/0
     lines: 
       - no shut
       - ip ospf 1 area 0
@@ -17,11 +17,17 @@
 - name: set ip OSPF ethernet0/1
   ios_config:
     parents:   
-      - int eth1
+      - int ethernet0/1
     lines:
       - no shut
       - ip ospf 1 area 0
 
-- debug: var=show_ip.stdout_lines   # debug: in ra màn hình, đắt biến var
+- name: show neighbor OSPF
+  ios_commmand:
+    commands:
+      - show ip ospf neighbor 
+
+  register: show_nei_OSPF
+- debug: var=show_nei_OSPF.stdout_lines   # debug: in ra màn hình, đắt biến var
                                     # ( lấy thông tin của các dòng từ show_ip gắn vào)
                                     # in biến var
